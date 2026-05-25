@@ -8,6 +8,7 @@ import com.example.myapplication.data.dataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,7 +20,12 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userPreferences = UserPreferences(application)
 
+    // --- NUEVO ESTADO DE SESIÓN ---
+    // null = Cargando datos, true = Ya registrado (ir a Home), false = Usuario nuevo (ir a Bienvenida)
+    private val _isUserConfigured = MutableStateFlow<Boolean?>(null)
+    val isUserConfigured: StateFlow<Boolean?> = _isUserConfigured.asStateFlow()
 
+    // --- ESTADOS COMPARTIDOS ---
     private val _userName = MutableStateFlow("")
     val userName: StateFlow<String> = _userName
 
@@ -34,7 +40,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             formatter.format(Date(millis))
         } ?: ""
-
 
     val currentWeek = MutableStateFlow(1)
     val daysRemaining = MutableStateFlow(266)
@@ -59,6 +64,32 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         _selectedDate.value = newDate
     }
 
+    // --- DIARIO Y CITAS MÉDICAS CON GUARDADO PERMANENTE ---
+    private val _diaryEntries = MutableStateFlow<Map<String, DiaryEntry>>(emptyMap())
+    val diaryEntries: StateFlow<Map<String, DiaryEntry>> = _diaryEntries.asStateFlow()
+
+    fun saveDiaryEntry(dateKey: String, mood: String, notes: String, type: String) {
+        val updatedMap = _diaryEntries.value.toMutableMap()
+        updatedMap[dateKey] = DiaryEntry(type = type, mood = mood, notes = notes)
+        _diaryEntries.value = updatedMap
+
+        // Guarda en el almacenamiento de inmediato
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.saveDiaryEntries(serializeDiary(updatedMap))
+        }
+    }
+
+    fun deleteDiaryEntry(dateKey: String) {
+        val updatedMap = _diaryEntries.value.toMutableMap()
+        updatedMap.remove(dateKey)
+        _diaryEntries.value = updatedMap
+
+        // Actualiza el almacenamiento de inmediato
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.saveDiaryEntries(serializeDiary(updatedMap))
+        }
+    }
+
     init { loadUserData() }
 
     fun onNameChange(newName: String) {
@@ -81,7 +112,17 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             _userName.value = prefs[UserPreferences.USER_NAME_KEY] ?: ""
             _weight.value = prefs[UserPreferences.USER_WEIGHT_KEY] ?: ""
             val dateStr = prefs[UserPreferences.PREGNANCY_DATE_KEY] ?: ""
-            if (dateStr.isNotEmpty()) calculatePregnancyData(dateStr)
+
+            // Carga el historial guardado del calendario
+            val serializedDiary = prefs[UserPreferences.DIARY_ENTRIES_KEY] ?: ""
+            _diaryEntries.value = deserializeDiary(serializedDiary)
+
+            if (dateStr.isNotEmpty()) {
+                calculatePregnancyData(dateStr)
+                _isUserConfigured.value = true // Ya tiene datos guardados -> Va directo a Home
+            } else {
+                _isUserConfigured.value = false // Es usuario nuevo -> Mostrar Bienvenida
+            }
         }
     }
 
@@ -117,6 +158,28 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             else -> BabySize("Calabaza", "45cm", "3-4kg")
         }
     }
+
+    // --- ASISTENTES DE SERIALIZACIÓN TEXTUAL ---
+    // Convierte el mapa en un texto plano usando emojis raros como separadores ultra-seguros
+    private fun serializeDiary(matrix: Map<String, DiaryEntry>): String {
+        return matrix.entries.joinToString(separator = "📂") { (key, entry) ->
+            "$key✏️${entry.type}✏️${entry.mood}✏️${entry.notes}"
+        }
+    }
+
+    private fun deserializeDiary(serialized: String): Map<String, DiaryEntry> {
+        if (serialized.isEmpty()) return emptyMap()
+        val map = mutableMapOf<String, DiaryEntry>()
+        val entries = serialized.split("📂")
+        for (entry in entries) {
+            val parts = entry.split("✏️")
+            if (parts.size == 4) {
+                map[parts[0]] = DiaryEntry(type = parts[1], mood = parts[2], notes = parts[3])
+            }
+        }
+        return map
+    }
 }
 
 data class BabySize(val name: String, val length: String, val weight: String)
+data class DiaryEntry(val type: String, val mood: String, val notes: String)
