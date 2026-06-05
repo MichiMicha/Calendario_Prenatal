@@ -20,12 +20,11 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userPreferences = UserPreferences(application)
 
-    // --- NUEVO ESTADO DE SESIÓN ---
-    // null = Cargando datos, true = Ya registrado (ir a Home), false = Usuario nuevo (ir a Bienvenida)
+
     private val _isUserConfigured = MutableStateFlow<Boolean?>(null)
     val isUserConfigured: StateFlow<Boolean?> = _isUserConfigured.asStateFlow()
 
-    // --- ESTADOS COMPARTIDOS ---
+
     private val _userName = MutableStateFlow("")
     val userName: StateFlow<String> = _userName
 
@@ -64,7 +63,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         _selectedDate.value = newDate
     }
 
-    // --- DIARIO Y CITAS MÉDICAS CON GUARDADO PERMANENTE ---
+
     private val _diaryEntries = MutableStateFlow<Map<String, DiaryEntry>>(emptyMap())
     val diaryEntries: StateFlow<Map<String, DiaryEntry>> = _diaryEntries.asStateFlow()
 
@@ -73,7 +72,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         updatedMap[dateKey] = DiaryEntry(type = type, mood = mood, notes = notes)
         _diaryEntries.value = updatedMap
 
-        // Guarda en el almacenamiento de inmediato
+
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.saveDiaryEntries(serializeDiary(updatedMap))
         }
@@ -84,7 +83,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         updatedMap.remove(dateKey)
         _diaryEntries.value = updatedMap
 
-        // Actualiza el almacenamiento de inmediato
+
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.saveDiaryEntries(serializeDiary(updatedMap))
         }
@@ -113,15 +112,15 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             _weight.value = prefs[UserPreferences.USER_WEIGHT_KEY] ?: ""
             val dateStr = prefs[UserPreferences.PREGNANCY_DATE_KEY] ?: ""
 
-            // Carga el historial guardado del calendario
+
             val serializedDiary = prefs[UserPreferences.DIARY_ENTRIES_KEY] ?: ""
             _diaryEntries.value = deserializeDiary(serializedDiary)
 
             if (dateStr.isNotEmpty()) {
                 calculatePregnancyData(dateStr)
-                _isUserConfigured.value = true // Ya tiene datos guardados -> Va directo a Home
+                _isUserConfigured.value = true
             } else {
-                _isUserConfigured.value = false // Es usuario nuevo -> Mostrar Bienvenida
+                _isUserConfigured.value = false
             }
         }
     }
@@ -159,8 +158,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- ASISTENTES DE SERIALIZACIÓN TEXTUAL ---
-    // Convierte el mapa en un texto plano usando emojis raros como separadores ultra-seguros
+
     private fun serializeDiary(matrix: Map<String, DiaryEntry>): String {
         return matrix.entries.joinToString(separator = "📂") { (key, entry) ->
             "$key✏️${entry.type}✏️${entry.mood}✏️${entry.notes}"
