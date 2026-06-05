@@ -54,23 +54,22 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val userViewModel: UserViewModel = viewModel()
 
-    // Observamos el estado de la sesión
+    // Verificamos si el usuario ya configuró sus datos previamente
     val isConfigured by userViewModel.isUserConfigured.collectAsState()
 
-    // Mientras lee las preferencias, mostramos una pantalla limpia de carga
+    // Pantalla de carga mientras lee los datos guardados en el DataStore
     if (isConfigured == null) {
         Box(
             modifier = Modifier.fillMaxSize().background(Color(0xFFF7F2EE)),
             contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = Color(0xFFE2725B))
-        }
+        ) { CircularProgressIndicator(color = Color(0xFFE2725B)) }
     } else {
         Scaffold(
             bottomBar = {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
+                // La barra inferior de navegación SOLO se muestra en las pantallas principales
                 if (currentRoute == "home" || currentRoute == "calendar" || currentRoute == "settings") {
                     BottomNavigationBar(navController, currentRoute)
                 }
@@ -78,7 +77,7 @@ fun AppNavigation() {
         ) { paddingValues ->
             NavHost(
                 navController = navController,
-                // CONTROL INTELIGENTE: Si ya se configuró va a "home", si no a "welcome"
+                // AQUÍ ESTÁ EL TRUCO: Si ya tiene datos va a "home", si es nueva va a "welcome" (tu pantalla de pedir datos)
                 startDestination = if (isConfigured == true) "home" else "welcome",
                 modifier = Modifier.padding(paddingValues)
             ) {
@@ -87,6 +86,7 @@ fun AppNavigation() {
                 }
                 composable("pregnancy_details") {
                     PregnancyDetailsScreen(userViewModel, onNavigateToHome = {
+                        // Al terminar de guardar los datos, va a Home y borra el historial para que no pueda volver atrás
                         navController.navigate("home") { popUpTo("welcome") { inclusive = true } }
                     })
                 }
@@ -119,10 +119,8 @@ fun BottomNavigationBar(navController: NavHostController, currentRoute: String?)
                 }
             },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = terracotta,
-                selectedTextColor = terracotta,
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
+                selectedIconColor = terracotta, selectedTextColor = terracotta,
+                unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
                 indicatorColor = Color(0xFFF7F2EE)
             )
         )
@@ -136,10 +134,8 @@ fun BottomNavigationBar(navController: NavHostController, currentRoute: String?)
                 }
             },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = terracotta,
-                selectedTextColor = terracotta,
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
+                selectedIconColor = terracotta, selectedTextColor = terracotta,
+                unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
                 indicatorColor = Color(0xFFF7F2EE)
             )
         )
@@ -153,10 +149,8 @@ fun BottomNavigationBar(navController: NavHostController, currentRoute: String?)
                 }
             },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = terracotta,
-                selectedTextColor = terracotta,
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
+                selectedIconColor = terracotta, selectedTextColor = terracotta,
+                unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray,
                 indicatorColor = Color(0xFFF7F2EE)
             )
         )
