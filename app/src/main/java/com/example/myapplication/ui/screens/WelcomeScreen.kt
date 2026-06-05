@@ -37,7 +37,6 @@ fun WelcomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            //icono
             Surface(
                 shape = CircleShape,
                 shadowElevation = 8.dp,
@@ -54,7 +53,6 @@ fun WelcomeScreen(
                 )
             }
 
-            //textos
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = "Bienvenida",
@@ -84,7 +82,6 @@ fun WelcomeScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            //boton
             Button(
                 onClick = {
                     onNavigateToHome()

@@ -34,9 +34,8 @@ fun CalendarScreen(viewModel: UserViewModel, onAddEntryClick: () -> Unit) {
     val selectedDate by viewModel.selectedDate.collectAsState()
     val diaryEntries by viewModel.diaryEntries.collectAsState()
 
-    // Estados locales para el formulario
     var showForm by remember { mutableStateOf(false) }
-    var entryType by remember { mutableStateOf("DIARIO") } // "DIARIO" o "MEDICA"
+    var entryType by remember { mutableStateOf("DIARIO") }
     var notaInput by remember { mutableStateOf("") }
     var sintomaSeleccionado by remember { mutableStateOf("") }
 
@@ -62,13 +61,11 @@ fun CalendarScreen(viewModel: UserViewModel, onAddEntryClick: () -> Unit) {
             .verticalScroll(rememberScrollState())
             .padding(20.dp)
     ) {
-        // Títulos principales
         Text(text = "BIENESTAR", fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
         Text(text = "Diario & Agenda", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = textDark, fontFamily = FontFamily.Serif)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // --- CALENDARIO ---
         Card(
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = cardBg),
@@ -181,7 +178,6 @@ fun CalendarScreen(viewModel: UserViewModel, onAddEntryClick: () -> Unit) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // --- SECCIÓN DE AGENDA ABAJO ---
         Text(
             text = selectedDateStr,
             fontSize = 12.sp,
@@ -393,7 +389,6 @@ fun CalendarScreen(viewModel: UserViewModel, onAddEntryClick: () -> Unit) {
 
                         Button(
                             onClick = {
-                                // Ahora llama a la función nativa limpia de 4 parámetros
                                 viewModel.saveDiaryEntry(
                                     dateKey = selectedDateKey,
                                     mood = if(entryType == "DIARIO") sintomaSeleccionado else "",

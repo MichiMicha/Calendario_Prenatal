@@ -160,17 +160,17 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private fun serializeDiary(matrix: Map<String, DiaryEntry>): String {
-        return matrix.entries.joinToString(separator = "📂") { (key, entry) ->
-            "$key✏️${entry.type}✏️${entry.mood}✏️${entry.notes}"
+        return matrix.entries.joinToString(separator = "") { (key, entry) ->
+            "$key${entry.type}${entry.mood}${entry.notes}"
         }
     }
 
     private fun deserializeDiary(serialized: String): Map<String, DiaryEntry> {
         if (serialized.isEmpty()) return emptyMap()
         val map = mutableMapOf<String, DiaryEntry>()
-        val entries = serialized.split("📂")
+        val entries = serialized.split("")
         for (entry in entries) {
-            val parts = entry.split("✏️")
+            val parts = entry.split("")
             if (parts.size == 4) {
                 map[parts[0]] = DiaryEntry(type = parts[1], mood = parts[2], notes = parts[3])
             }

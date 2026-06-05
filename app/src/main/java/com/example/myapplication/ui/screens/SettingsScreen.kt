@@ -89,7 +89,6 @@ fun SettingsScreen(viewModel: UserViewModel) {
     }
 
 
-    //Fecha
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState()
         DatePickerDialog(
@@ -120,7 +119,6 @@ fun SettingsScreen(viewModel: UserViewModel) {
         }
     }
 
-    //cambiar el peso
     if (showWeightDialog) {
         var tempWeight by remember { mutableStateOf(currentWeight) }
         AlertDialog(

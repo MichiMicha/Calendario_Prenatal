@@ -46,7 +46,6 @@ fun HomeScreen(viewModel: UserViewModel) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // semana
         Card(
             colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(24.dp),
@@ -59,7 +58,6 @@ fun HomeScreen(viewModel: UserViewModel) {
                         Text(text = "$week", fontSize = 48.sp, fontWeight = FontWeight.Bold)
                         Text(text = "de 40 semanas", fontSize = 14.sp, color = Color.Gray)
                     }
-                    // peso bebe
                     Surface(
                         color = Color(0xFFE8F5E9),
                         shape = RoundedCornerShape(12.dp)
@@ -69,16 +67,12 @@ fun HomeScreen(viewModel: UserViewModel) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Scale, // icono de balanza
+                                imageVector = Icons.Default.Scale,
                                 contentDescription = "Peso del bebé",
                                 tint = Color(0xFF2E7D32),
-                                modifier = Modifier.size(16.dp) // tamaño del bebe
+                                modifier = Modifier.size(16.dp)
                             )
-
-                            // espacio del icono y texto
                             Spacer(modifier = Modifier.width(4.dp))
-
-                            // texto del peso
                             Text(
                                 text = babyInfo.weight,
                                 fontWeight = FontWeight.Bold,
@@ -91,7 +85,6 @@ fun HomeScreen(viewModel: UserViewModel) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // barra de progreso
                 LinearProgressIndicator(
                     progress = { week / 40f },
                     modifier = Modifier.fillMaxWidth().height(12.dp),
@@ -103,7 +96,6 @@ fun HomeScreen(viewModel: UserViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // tamaño del bebe
         Card(
             colors = CardDefaults.cardColors(containerColor = terracotta),
             shape = RoundedCornerShape(24.dp),
@@ -121,7 +113,6 @@ fun HomeScreen(viewModel: UserViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // fecha
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             InfoSmallCard(modifier = Modifier.weight(1f), title = "FECHA PARTO", value = dueDate, subValue = "$daysRemaining días rest.")
             InfoSmallCard(modifier = Modifier.weight(1f), title = "TU PESO", value = "$weight kg", subValue = "Semana $week")
@@ -129,7 +120,6 @@ fun HomeScreen(viewModel: UserViewModel) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // cita
         Text(text = "PRÓXIMA CITA", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
         Spacer(modifier = Modifier.height(8.dp))
         Card(
